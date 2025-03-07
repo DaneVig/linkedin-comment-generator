@@ -9,7 +9,7 @@ def generate_comments(post_text, tone):
     """Generates multiple AI-powered LinkedIn comments based on the given post and tone."""
     prompt = f"Generate three {tone} LinkedIn comments for the following post:\n{post_text}\n\n1.\n2.\n3."
     
-    response = openai.ChatCompletion.create(
+    response = openai.client.chat.completions.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": "You are an AI that helps generate professional LinkedIn comments."},
@@ -19,7 +19,7 @@ def generate_comments(post_text, tone):
         max_tokens=150
     )
     
-    comments = response["choices"][0]["message"]["content"].split("\n")
+    comments = response.choices[0].message.content.split("\n")
     return [comment.strip() for comment in comments if comment.strip() and not comment.strip().isdigit()]
 
 # Streamlit Web App
