@@ -1,5 +1,9 @@
 import openai
 import streamlit as st
+import os
+
+# Set up OpenAI API key
+openai.api_key = os.getenv("OPENAI_API_KEY")  # Ensure your API key is set in Streamlit Cloud
 
 def generate_comments(post_text, tone):
     """Generates multiple AI-powered LinkedIn comments based on the given post and tone."""
@@ -9,10 +13,11 @@ def generate_comments(post_text, tone):
         model="gpt-4",
         messages=[{"role": "system", "content": "You are an AI that helps generate professional LinkedIn comments."},
                   {"role": "user", "content": prompt}],
+        temperature=0.7,  # Adjusts creativity level
         max_tokens=150
     )
     
-    comments = response["choices"][0]["message"]["content"].split("\n")
+    comments = response["choices"][0]["message"]["content"].strip().split("\n")
     return [comment.strip() for comment in comments if comment.strip()]
 
 # Streamlit Web App
@@ -24,9 +29,12 @@ tone = st.selectbox("Select Comment Tone:", ["Professional", "Casual", "Engaging
 
 if st.button("Generate Comments"):
     if post_input:
-        comments = generate_comments(post_input, tone.lower())
-        st.subheader("Suggested Comments:")
-        for i, comment in enumerate(comments, 1):
-            st.write(f"**{i}.** {comment}")
+        try:
+            comments = generate_comments(post_input, tone.lower())
+            st.subheader("Suggested Comments:")
+            for i, comment in enumerate(comments, 1):
+                st.write(f"**{i}.** {comment}")
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
     else:
         st.warning("Please enter a LinkedIn post to generate comments.")
