@@ -10,7 +10,8 @@ def generate_comments(post_text, tone):
     prompt = f"Generate three {tone} LinkedIn comments for the following post:\n{post_text}\n\n1.\n2.\n3."
     
     try:
-        response = openai.ChatCompletion.create(
+        client = openai.OpenAI()
+        response = client.chat.completions.create(
             model="gpt-4",
             messages=[
                 {"role": "system", "content": "You are an AI that helps generate professional LinkedIn comments."},
@@ -19,7 +20,7 @@ def generate_comments(post_text, tone):
             temperature=0.7,  # Adjusts creativity level
             max_tokens=150
         )
-        comments = response["choices"][0]["message"]["content"].split("\n")
+        comments = response.choices[0].message.content.split("\n")
         return [comment.strip() for comment in comments if comment.strip() and not comment.strip().isdigit()]
     except Exception as e:
         return [f"Error generating comments: {str(e)}"]
