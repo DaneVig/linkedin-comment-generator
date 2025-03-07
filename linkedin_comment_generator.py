@@ -7,18 +7,20 @@ openai.api_key = os.getenv("OPENAI_API_KEY")  # Ensure your API key is set in St
 
 def generate_comments(post_text, tone):
     """Generates multiple AI-powered LinkedIn comments based on the given post and tone."""
-    prompt = f"Generate three {tone} LinkedIn comments for the following post: '{post_text}'\n1.\n2.\n3."
+    prompt = f"Generate three {tone} LinkedIn comments for the following post:\n{post_text}\n\n1.\n2.\n3."
     
     response = openai.ChatCompletion.create(
         model="gpt-4",
-        messages=[{"role": "system", "content": "You are an AI that helps generate professional LinkedIn comments."},
-                  {"role": "user", "content": prompt}],
+        messages=[
+            {"role": "system", "content": "You are an AI that helps generate professional LinkedIn comments."},
+            {"role": "user", "content": prompt}
+        ],
         temperature=0.7,  # Adjusts creativity level
         max_tokens=150
     )
     
-    comments = response["choices"][0]["message"]["content"].strip().split("\n")
-    return [comment.strip() for comment in comments if comment.strip()]
+    comments = response["choices"][0]["message"]["content"].split("\n")
+    return [comment.strip() for comment in comments if comment.strip() and not comment.strip().isdigit()]
 
 # Streamlit Web App
 st.title("LinkedIn Comment Generator")
@@ -34,6 +36,8 @@ if st.button("Generate Comments"):
             st.subheader("Suggested Comments:")
             for i, comment in enumerate(comments, 1):
                 st.write(f"**{i}.** {comment}")
+        except openai.OpenAIError as e:
+            st.error(f"An OpenAI API error occurred: {e}")
         except Exception as e:
             st.error(f"An error occurred: {e}")
     else:
