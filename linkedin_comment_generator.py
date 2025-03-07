@@ -12,7 +12,7 @@ def generate_comments(post_text, tone):
     try:
         client = openai.OpenAI()
         response = client.chat.completions.create(
-            model="gpt-4-turbo",
+            model="gpt-4",
             messages=[
                 {"role": "system", "content": "You are an AI that helps generate professional LinkedIn comments."},
                 {"role": "user", "content": prompt}
